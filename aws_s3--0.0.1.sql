@@ -72,7 +72,7 @@ AS $$
     plan = plpy.prepare("select name, current_setting('aws_s3.' || name, true) as value from (select unnest(array['access_key_id', 'secret_access_key', 'session_token', 'endpoint_url']) as name) a");
     default_aws_settings = {
         row['name']: row['value']
-        for row in plan.execute()
+        for row in plpy.execute(plan)
     }
 
     aws_settings = {
@@ -133,7 +133,8 @@ AS $$
         'SELECT aws_s3.table_import_from_s3($1, $2, $3, $4, $5, $6, $7, $8, $9) AS num_rows',
         ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT']
     )
-    return plan.execute(
+    return plpy.execute(
+        plan,
         [
             table_name,
             column_list,
@@ -183,7 +184,7 @@ AS $$
     plan = plpy.prepare("select name, current_setting('aws_s3.' || name, true) as value from (select unnest(array['access_key_id', 'secret_access_key', 'session_token', 'endpoint_url']) as name) a");
     default_aws_settings = {
         row['name']: row['value']
-        for row in plan.execute()
+        for row in plpy.execute(plan)
     }
 
     aws_settings = {
@@ -207,7 +208,7 @@ AS $$
                 options="({options})".format(options=options) if options else ''
             )
         )
-        plan.execute()
+        plpy.execute(plan)
         num_lines = 0
         size = 0
         while True:
@@ -238,7 +239,8 @@ AS $$
         'SELECT * FROM aws_s3.query_export_to_s3($1, $2, $3, $4, $5, $6, $7, $8, $9)',
         ['TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT', 'TEXT']
     )
-    return plan.execute(
+    return plpy.execute(
+        plan,
         [
             query,
             s3_info.get('bucket'),
